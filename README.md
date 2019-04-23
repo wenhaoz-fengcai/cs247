@@ -23,21 +23,21 @@ Details can be seen [here](https://piazza-resources.s3.amazonaws.com/jtqhn28oio5
 
 ## Health related topics
 
-5. clinical predictive models on Eletronic Health Record (EHR) systems
+### 5. clinical predictive models on Eletronic Health Record (EHR) systems
 
 This is a **diagnosis prediction task**, and its **goal** is to predict the furture health information of patients from their historical [Eletronic Healthcare Records (EHR)](https://www.healthit.gov/faq/what-electronic-health-record-ehr).
 
-### Papers:
+#### Papers:
 
 * [RETAIN: AN Interpretable Predictive Model for Healthcare using Reverse Time Attention Mechanism](https://papers.nips.cc/paper/6321-retain-an-interpretable-predictive-model-for-healthcare-using-reverse-time-attention-mechanism)
 * [KAME: Knowledge-based Attention Model for Diagnosis Prediction in Healthcare](http://www.acsu.buffalo.edu/~fenglong/files/2018/cikm18_kame.pdf)
 
-### Github:
+#### Github:
 * [RETAIN](https://github.com/mp2893/retain)
 * [Med2ve](https://github.com/mp2893/med2vec)
 * ...
 
-### Datasets:
+#### Datasets:
 
 I find this one very popular and is being used in **KAME** paper. We need to request the access to the dataset. It's not a big deal though.
 
@@ -51,25 +51,25 @@ For this project, we can **compare** the performance of different predictive mod
 
 The idea is preliminary, but we can discuss about it and then talk with prof.
 
-6. Breast cancer prediction
+### 6. Breast cancer prediction
 
 This is a treatment prediction for breast cancer patients.
 
-### Intro to the problem
+#### Intro to the problem
 
 [Intro](https://www.dropbox.com/s/nhmy3zdcq5afe87/Treatment%20Prediction%20For%20Breast%20Cancer%20Patients.pdf?dl=0)
 
-### Dataset
+#### Dataset
 
 [Dataset](https://www.dropbox.com/s/rtety2nzcav2q34/FinalCancer_Data.csv?dl=0)
 
-### Papers
+#### Papers
 
 - [Quantification of hypoxia-related gene expression as a potential approach for clinical outcome prediction in breast cancer](https://www.dropbox.com/s/ms4vfwiv837w3mx/Breast%20cancer.pdf?dl=0
 - ...
 
 
-7. Kaggle competitions
+### 7. Kaggle competitions
 
 We can choose some interesting datasets and projects on [Kaggle competition](https://www.kaggle.com/tags/healthcare). What's wrong with getting the course project done and earning some money 😈.
 
