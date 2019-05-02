@@ -8,7 +8,7 @@ Proposal is [here](https://github.com/jiaowoshabi/cs247/blob/master/docs/submiss
 
 ### Datasets
 
-1. [Yahoo!News](https://www.dropbox.com/s/yad2tfaj9ve3vuf/yahoo newstitles.tar.gz? dl=0)
+1. [Yahoo News](https://www.dropbox.com/s/yad2tfaj9ve3vuf/yahoo newstitles.tar.gz? dl=0)
 2. [BBC News](http://mlg.ucd.ie/files/datasets/bbc-fulltext.zip)
 
 ### Papers
