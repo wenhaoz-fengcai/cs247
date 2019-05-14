@@ -57,4 +57,4 @@ python3 -m src.tests.test_reader
 
 ### To-dos
 
-- {week 5&6](https://cs247project.slack.com/files/UHGR5HAP4/FJD2JBKTJ/Recap_of_the_kick-off_meeting_)
+- [week 5&6](https://cs247project.slack.com/files/UHGR5HAP4/FJD2JBKTJ/Recap_of_the_kick-off_meeting_)
