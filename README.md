@@ -54,3 +54,7 @@ If you'd like to run any module (i.e. `.py`) directly, do `python3 -m path_to.mo
 ```
 python3 -m src.tests.test_reader
 ```
+
+### To-dos
+
+- {week 5&6](https://cs247project.slack.com/files/UHGR5HAP4/FJD2JBKTJ/Recap_of_the_kick-off_meeting_)
