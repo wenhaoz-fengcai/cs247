@@ -19,7 +19,7 @@ requirements:
 	pip3 install -r requirements.txt
 
 ## Run all test suites
-testall:
+test:
 	python3 -m unittest discover -s src/tests
 
 ## Delete all compiled Python files
