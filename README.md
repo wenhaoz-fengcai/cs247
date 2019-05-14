@@ -19,15 +19,15 @@ Proposal is [here](https://github.com/jiaowoshabi/cs247/blob/master/docs/submiss
 
 ### Project structure
     .
-	├── data                    # Datasets 
-	│	└── bbc
+    ├── data                    # Datasets 
+    │   └── bbc
     ├── docs                    # Documentation files, reports and reference papers
     ├── src                     # Source code files
-    │	├── reader.py
-	│   └── tests               # Automated tests
-	│		 └── test_reader.py
-	├── requirements.txt        # Dependencies
-	├── Makefile
+    │   ├── reader.py
+    │   └── tests               # Automated tests
+    │        └── test_reader.py
+    ├── requirements.txt        # Dependencies
+    ├── Makefile
     ├── LICENSE
     └── README.md
 
