@@ -1,3 +1,4 @@
+import os
 import sys
 import logging
 import unittest
@@ -9,13 +10,22 @@ TEST1 = [('While', 'O'), ('in', 'O'), ('France', 'LOCATION'), (',', 'O'), ('Chri
 
 class TestReader(unittest.TestCase):
     def setUp(self):
-        self.reader = Reader("../../data/bbc/")
+        self.reader = Reader()
         self.tokenized_text = word_tokenize(TEXT)
         self.classified_text = self.reader.st.tag(self.tokenized_text)
 
     def test_init(self):
         assert TEST1 == self.classified_text
 
+    def test_read_files(self):
+        self.lst_news = self.reader.read_files("data/bbc")
+        self.assertFalse(len(self.reader.file_names) == 0)
+        self.assertTrue(os.access(self.reader.file_names[0], os.R_OK))
+
+    def test_parse_news(self):
+        self.lst_news = self.reader.read_files("data/bbc")
+        # test on a subset of news articles, e.g. 10 files
+        res = self.reader.parse_news(self.lst_news[:10])
 
 
 if __name__ == "__main__":
