@@ -13,8 +13,6 @@ class Search:
         # ), ("Noor_Nakhaei", "Person"), ("Center_For_Smart_Health", "Organization")]
 
     def search(self, mylist):
-        # new = []
-        # existing = []
         # we search in the dbpedia to see if the words exist
         for i in mylist:
             self.sparql.setQuery("""
