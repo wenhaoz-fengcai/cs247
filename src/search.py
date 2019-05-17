@@ -2,6 +2,17 @@ from SPARQLWrapper import SPARQLWrapper, CSV
 
 
 class Search:
+    
+        """
+    Python class which searches for the entities found in previous step, in the dbpedia database.
+        If the entities were not found, they're declared in a list as new entities.
+    Attributes:
+        entities: a list of tuples: words, and they're type.
+        new: a list of new entities.
+        existing: a list of existing entities.
+        sparql: This is a wrapper around a SPARQL service. It helps in creating the query URI and, possibly,
+            convert the result into a more manageable format.
+    """
 
     def __init__(self):
         self.sparql = SPARQLWrapper("http://dbpedia.org/sparql")
@@ -12,9 +23,9 @@ class Search:
         # mylist = [("London", "Location"), ("Obama", "Person"), ("UNICEF", "Organization"), ("jhfvjhegrfvh", "Location"
         # ), ("Noor_Nakhaei", "Person"), ("Center_For_Smart_Health", "Organization")]
 
-    def search(self, mylist):
+    def search(self, entities):
         # we search in the dbpedia to see if the words exist
-        for i in mylist:
+        for i in entities:
             self.sparql.setQuery("""
             SELECT DISTINCT ?item ?label WHERE{
                         ?item rdfs:label ?label .
