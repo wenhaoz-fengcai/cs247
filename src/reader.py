@@ -30,8 +30,8 @@ class Reader(object):
         nltk.download('punkt')
         self.root = os.getcwd()
         # 3 class model for recognizing locations, persons, and organizations
-        model_path = os.path.join(self.root, "src/stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz")
-        tagger_path = os.path.join(self.root, "src/stanford-ner/stanford-ner.jar")
+        model_path = os.path.join(self.root, "stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz")
+        tagger_path = os.path.join(self.root, "stanford-ner/stanford-ner.jar")
 
         self.st = StanfordNERTagger(model_path, tagger_path, encoding='utf-8')
 
@@ -71,9 +71,9 @@ class Reader(object):
         ''' 
         article = pd.read_csv(filepath)
         
-        self.list = article.iloc[:,0].tolist()
+        self.files = article.iloc[:,1].tolist()
 
-
+        return self.files 
 
     def parse_news(self, lst_news):
         """

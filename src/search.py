@@ -3,7 +3,7 @@ from SPARQLWrapper import SPARQLWrapper, CSV
 
 class Search:
     
-        """
+    """
     Python class which searches for the entities found in previous step, in the dbpedia database.
         If the entities were not found, they're declared in a list as new entities.
     Attributes:
@@ -13,7 +13,6 @@ class Search:
         sparql: This is a wrapper around a SPARQL service. It helps in creating the query URI and, possibly,
             convert the result into a more manageable format.
     """
-
     def __init__(self):
         self.sparql = SPARQLWrapper("http://dbpedia.org/sparql")
         self.sparql.addDefaultGraph("http://dbpedia.org")
