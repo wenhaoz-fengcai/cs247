@@ -1,6 +1,8 @@
 import os
 import nltk
 import os.path
+import pandas as pd
+import numpy as np
 
 from nltk.tag import StanfordNERTagger
 from nltk.tokenize import word_tokenize
@@ -54,6 +56,24 @@ class Reader(object):
                 self.files.append(f.read())
 
         return list(self.files)
+
+    def read_csv_file(self, filepath):
+        '''
+        (Mixed-news data are stored in csv format. For convinience, we only remain title information and they are already informative.)
+
+        Read path of the csv news file(usually read only one file).
+
+        Args:
+            filepath: string; path at where to read mixed-news data.
+
+        Returns:
+            A copy of list of news title
+        ''' 
+        article = pd.read_csv(filepath)
+        
+        self.list = article.iloc[:,0].tolist()
+
+
 
     def parse_news(self, lst_news):
         """
