@@ -67,7 +67,7 @@ class Reader(object):
             filepath: string; path at where to read mixed-news data.
 
         Returns:
-            A copy of list of news title
+            A copy of list of news content
         ''' 
         article = pd.read_csv(filepath)
         
