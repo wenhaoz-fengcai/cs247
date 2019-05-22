@@ -1,4 +1,5 @@
 from SPARQLWrapper import SPARQLWrapper, CSV
+import re
 
 class Search(object):
     
