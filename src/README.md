@@ -14,9 +14,10 @@
 - Reader.py
 	* Python class which reads the all files from given path under `data` folder
 	* Reads files recursively
+	* Remove stop words in tokenized words
 	* Tokenize the documents using **nltk** `Name Entity Tokenizer` package.
 	
--Search.py
+- Search.py
 	* Python class which gets a list of tuples as input
 	* Recursively search for each entity in the dbpedia
 	* Output 2 lists, the new entities, and the existing ones
