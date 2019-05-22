@@ -71,7 +71,7 @@ class Reader(object):
         ''' 
         article = pd.read_csv(filepath)
         
-        self.files = article.iloc[:,1].tolist()
+        self.files = list(set(article.iloc[:,1].tolist()))
 
         return self.files 
 
