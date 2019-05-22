@@ -33,8 +33,8 @@ class Reader(object):
         nltk.download('stopwords')
         self.root = os.getcwd()
         # 3 class model for recognizing locations, persons, and organizations
-        model_path = os.path.join(self.root, "src/stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz")
-        tagger_path = os.path.join(self.root, "src/stanford-ner/stanford-ner.jar")
+        model_path = os.path.join(self.root, "stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz")
+        tagger_path = os.path.join(self.root, "stanford-ner/stanford-ner.jar")
         # init stopwords
         self.stop_words = set(stopwords.words('english'))
 
