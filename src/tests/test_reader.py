@@ -27,6 +27,14 @@ class TestReader(unittest.TestCase):
         # test on a subset of news articles, e.g. 10 files
         res = self.reader.parse_news(self.lst_news[:10])
 
+    def test_filter_stop_words(self):
+        example = ['This', 'is', 'a', 'sample', 'sentence', ',', 'showing',  'off', 'the', 'stop', 'words', 'filtration', '.']
+        res = self.reader.filter_stop_words(example)
+        print(res)
+        assert res == ['sample', 'sentence', ',', 'showing', 'stop', 'words', 'filtration', '.']
+
+def main():
+    test_reader = TestReader()
 
 if __name__ == "__main__":
     logging.basicConfig( stream=sys.stderr )

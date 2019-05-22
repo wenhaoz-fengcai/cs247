@@ -4,6 +4,7 @@ import os.path
 import pandas as pd
 import numpy as np
 
+from nltk.corpus import stopwords
 from nltk.tag import StanfordNERTagger
 from nltk.tokenize import word_tokenize
 
@@ -28,10 +29,14 @@ class Reader(object):
         self.files = []
         # Download Punkt Sentence Tokenizer
         nltk.download('punkt')
+        # Download Stopwords
+        nltk.download('stopwords')
         self.root = os.getcwd()
         # 3 class model for recognizing locations, persons, and organizations
-        model_path = os.path.join(self.root, "stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz")
-        tagger_path = os.path.join(self.root, "stanford-ner/stanford-ner.jar")
+        model_path = os.path.join(self.root, "src/stanford-ner/classifiers/english.all.3class.distsim.crf.ser.gz")
+        tagger_path = os.path.join(self.root, "src/stanford-ner/stanford-ner.jar")
+        # init stopwords
+        self.stop_words = set(stopwords.words('english'))
 
         self.st = StanfordNERTagger(model_path, tagger_path, encoding='utf-8')
 
@@ -90,6 +95,20 @@ class Reader(object):
         """
         sep = "\n"
         self.tokenized_text = word_tokenize(sep.join(lst_news))
+        self.tokenized_text = self.filter_stop_words(self.tokenized_text)
         self.classified_text = self.st.tag(self.tokenized_text)
 
         return list(self.classified_text)
+
+    def filter_stop_words(self, lst_words):
+        """
+        Filter out all stopwords specified in nltk.corpus.stopwords in the lst_words.
+
+        Args:
+            lst_words: list of words (string);
+
+        Return:
+            Return a list of words (string type) with all stopwords removed from lst_words.
+        """
+        filtered_sentence = [w for w in lst_words if not w.lower() in self.stop_words]
+        return list(filtered_sentence)
