@@ -33,6 +33,11 @@ class TestReader(unittest.TestCase):
         print(res)
         assert res == ['sample', 'sentence', ',', 'showing', 'stop', 'words', 'filtration', '.']
 
+    def test_stem_words(self):
+        example = ['game', 'gaming', 'gamed', 'games']
+        res = self.reader.stem_words(example)
+        assert res == ['game']
+
 def main():
     test_reader = TestReader()
 
