@@ -7,19 +7,20 @@ import numpy as np
 from nltk.corpus import stopwords
 from nltk.tag import StanfordNERTagger
 from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
 
 class Reader(object):
     """
-    Python class which reads all the news documents from given path, and 
+    Python class which reads all the news documents from given path, and
     tokenize the documents using "nltk Name Entity Tokenizer (NER)" package.
     This class should read file recursively.
 
     Attributes:
         file_names: a list of paths to all .txt files.
         files: a list of news articles.
-        root: current path; project root path if we ran this module at 
+        root: current path; project root path if we ran this module at
             top-level.
-        st: StandfordNERTagger with 3 class model for recognizing locations, 
+        st: StandfordNERTagger with 3 class model for recognizing locations,
             persons, and organizations.
     """
 
@@ -73,12 +74,12 @@ class Reader(object):
 
         Returns:
             A copy of list of news content
-        ''' 
+        '''
         article = pd.read_csv(filepath)
-        
+
         self.files = list(set(article.iloc[:,1].tolist()))
 
-        return self.files 
+        return self.files
 
     def parse_news(self, lst_news):
         """
@@ -89,8 +90,8 @@ class Reader(object):
             lst_news: list of strings; list of news articles.
 
         Returns:
-            A copy of list of (key, value) pairs. Each token is tagged (using our 3 
-            class model) with either 'PERSON', 'LOCATION', 'ORGANIZATION', 
+            A copy of list of (key, value) pairs. Each token is tagged (using our 3
+            class model) with either 'PERSON', 'LOCATION', 'ORGANIZATION',
             or 'O'. The 'O' simply stands for other, i.e., non-named entities.
         """
         sep = "\n"
@@ -112,3 +113,17 @@ class Reader(object):
         """
         filtered_sentence = [w for w in lst_words if not w.lower() in self.stop_words]
         return list(filtered_sentence)
+
+    def stem_words(self, lst_words):
+        """
+        Stem all words in lst_words and retain only unique stemmed words
+
+        Args:
+            lst_words (list): list of words (str)
+
+        Returns:
+            list: The list of unique stemmed words
+        """
+        ps = PorterStemmer()
+        stemmed_words = [ps.stem(w) for w in lst_words]
+        return list(set(stemmed_words))
