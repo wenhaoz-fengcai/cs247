@@ -4,3 +4,4 @@ ENV/
 __pycache__
 .ipynb_checkpoints
 data/mixed-news/articles1.csv
+.vscode
