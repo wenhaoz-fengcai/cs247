@@ -1,6 +1,8 @@
 # cs247 Course Project
 
-## Emerging Relation Detection from News in Heterogeneous Information Networks (HIN)
+## Emerging Relation Detection from News in Heterogeneous Information Networks
+
+[![Build Status](https://travis-ci.org/jiaowoshabi/cs247.svg?branch=master)](https://travis-ci.org/jiaowoshabi/cs247)
 
 ### Project Proposal
 
