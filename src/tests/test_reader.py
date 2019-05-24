@@ -31,15 +31,13 @@ class TestReader(unittest.TestCase):
         example = ['This', 'is', 'a', 'sample', 'sentence', ',', 'showing',  'off', 'the', 'stop', 'words', 'filtration', '.']
         res = self.reader.filter_stop_words(example)
         print(res)
-        assert res == ['sample', 'sentence', ',', 'showing', 'stop', 'words', 'filtration', '.']
+        assert res == ['sample', 'sentence', 'showing', 'stop', 'words', 'filtration']
 
     def test_stem_words(self):
         example = ['game', 'gaming', 'gamed', 'games']
         res = self.reader.stem_words(example)
         assert res == ['game']
 
-def main():
-    test_reader = TestReader()
 
 if __name__ == "__main__":
     logging.basicConfig( stream=sys.stderr )
