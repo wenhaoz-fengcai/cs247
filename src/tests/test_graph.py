@@ -24,16 +24,12 @@ class TestGraph(unittest.TestCase):
     def test_get_entities(self):
         self.graph = Graph(NEWS)
         res = self.graph.get_entities()
-        print("print out entities")
-        print(res)
         assert set(res) == set(['Trump', 'Nancy', 'Pelosi', 'White', 'House',
                                 'Washington'])
 
     def test_get_words(self):
         self.graph = Graph(NEWS)
         res = self.graph.get_words()
-        print("print out words")
-        print(res)
         assert set(res) == set(['hazzaaaa', 'President','took', 'sharp',
                                 'verbal', 'shots', 'Speaker', 'Thursday', 
                                 'announced', 'billion', 'new', 'subsidies',
@@ -77,6 +73,58 @@ class TestGraph(unittest.TestCase):
         assert df.loc["edge", "text"] == 2
         assert df.loc["edge", "graph"] == 6
         assert df.loc["graph", "edge"] == 6
+
+    def test_update_weight_1(self):
+        self.graph = Graph(["text edge graph edge"], 3)
+
+        self.graph.update_weight(("edge", "graph"), 1)
+        df = self.graph.get_weights()
+        assert df.loc["text", "graph"] == 1
+        assert df.loc["graph", "text"] == 1
+        assert df.loc["text", "edge"] == 1
+        assert df.loc["edge", "text"] == 1
+        assert df.loc["edge", "graph"] == 1
+        assert df.loc["graph", "edge"] == 1
+        assert (("edge", "graph") in self.graph.get_edges() or
+                ("graph", "edge") in self.graph.get_edges())
+
+    def test_update_weight_2(self):
+        self.graph = Graph(["text edge graph edge"], 3)
+
+        self.graph.update_weight(("edge", "graph"), -1)
+        df = self.graph.get_weights()
+        assert df.loc["text", "graph"] == 1
+        assert df.loc["graph", "text"] == 1
+        assert df.loc["text", "edge"] == 1
+        assert df.loc["edge", "text"] == 1
+        assert df.loc["edge", "graph"] == -1
+        assert df.loc["graph", "edge"] == -1
+        print(self.graph.get_edges())
+        assert not (("edge", "graph") in self.graph.get_edges() or
+                ("graph", "edge") in self.graph.get_edges())
+
+    def test_update_weight_3(self):
+        self.graph = Graph(["text edge graph"], 2)
+        df = self.graph.get_weights()
+        assert df.loc["text", "graph"] == 0
+        assert df.loc["graph", "text"] == 0
+        assert df.loc["text", "edge"] == 1
+        assert df.loc["edge", "text"] == 1
+        assert df.loc["graph", "edge"] == 1
+        assert df.loc["edge", "graph"] == 1
+        assert not (("text", "graph") in self.graph.get_edges() or
+                ("graph", "text") in self.graph.get_edges())
+
+        self.graph.update_weight(("text", "graph"), 3)
+        df = self.graph.get_weights()
+        assert df.loc["text", "graph"] == 3
+        assert df.loc["graph", "text"] == 3
+        assert df.loc["text", "edge"] == 1
+        assert df.loc["edge", "text"] == 1
+        assert df.loc["graph", "edge"] == 1
+        assert df.loc["edge", "graph"] == 1
+        assert (("text", "graph") in self.graph.get_edges() or
+                ("graph", "text") in self.graph.get_edges())
 
 if __name__ == "__main__":
     unittest.main()

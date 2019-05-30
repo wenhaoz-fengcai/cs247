@@ -183,3 +183,28 @@ class Graph(object):
                 entities.append(word)
         assert len(entities) + len(cwords) == len(tagged_words)
         return entities, cwords
+
+    def update_weight(self, e, w):
+        """
+        Update the edge weight in the enternal weight matrix. 
+        Args:
+            e: tuple; a tuple contains two nodes, e.g. ("A", "B")
+            w: int; The new weight associated with e
+        """
+        if e[0] not in set(self.get_nodes()):
+            raise ValueError("Node {} is not in the graph".format(str(e[0])))
+        if e[1] not in set(self.get_nodes()):
+            raise ValueError("Node {} is not in the graph".format(str(e[1])))
+
+        if e in self.edges and w <= 0:
+            self.edge_weights.loc[e[0], e[1]] = w
+            self.edge_weights.loc[e[1], e[0]] = w
+            self.edges.remove(e)
+            self.edges.remove((e[1], e[0]))
+        elif e in self.edges and w > 0:
+            self.edge_weights.loc[e[0], e[1]] = w
+            self.edge_weights.loc[e[1], e[0]] = w
+        else:
+            self.edge_weights.loc[e[0], e[1]] = w
+            self.edge_weights.loc[e[1], e[0]] = w
+            self.edges.add(e)
