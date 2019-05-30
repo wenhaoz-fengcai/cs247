@@ -11,7 +11,7 @@ from nltk.tokenize import word_tokenize
 
 class Graph(object):
     """
-    Python class which represents the heterogeneous textual graph (undirected graph). G = <V, E>. V is the set of nodes (objects), including 3 types of objects (i.e. new entites, known entities, and contextual words). Entities are words (with label: PERSON, LOCATION, and ORGANIZATION) whereas contextual words are the remaining uni-gram words. New entities are the entities not in DBpedia, and Know entities are the entities in the DBpedia. E is a set of edges (co-occurrences) of entity-entity, entity-word, and word-word corrences. Words within every 5-word sliding window in a news sentence are considered to be co-occuring with each other. The weights are represented by adjacency matrix using dataframe.
+    Base class which represents the heterogeneous textual graph (undirected graph). G = <V, E>. V is the set of nodes (objects), including 3 types of objects (i.e. new entites, known entities, and contextual words). Entities are words (with label: PERSON, LOCATION, and ORGANIZATION) whereas contextual words are the remaining uni-gram words. New entities are the entities not in DBpedia, and Know entities are the entities in the DBpedia. E is a set of edges (co-occurrences) of entity-entity, entity-word, and word-word corrences. Words within every 5-word sliding window in a news sentence are considered to be co-occuring with each other. The weights are represented by adjacency matrix using dataframe.
 
     Attributes:
         nodes: dictionary of nodes {"N (new entity)": [(word, label)], "K (Known entity)": [(word, label)], "C (Contextual word)": [(word, label)]} in the graph; Includes 3 types of objects (i.e. e new entites, known entities, and contextual words).
