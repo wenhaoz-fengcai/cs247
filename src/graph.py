@@ -11,12 +11,10 @@ from nltk.tokenize import word_tokenize
 
 class Graph(object):
     """
-    Python class which represents the heterogeneous textual graph (undirected graph). G = <V, E>. V is the set of nodes (objects), including two types of objects (i.e. new entites, and contextual words). New entities are words (with label: PERSON, LOCATION, and ORGANIZATION) cannot be matched by DBpedia whereas contextual words are the remaining uni-gram words. E is a set of edges (co-occurrences) of entity-entity, entity-word, and word-word corrences. Words within every 5-word sliding window in a news sentence are considered to be co-occuring with each other. 
-    # TO-DO:
-    The weights are represented by adjacency matrix using dataframe.
+    Python class which represents the heterogeneous textual graph (undirected graph). G = <V, E>. V is the set of nodes (objects), including 3 types of objects (i.e. new entites, known entities, and contextual words). Entities are words (with label: PERSON, LOCATION, and ORGANIZATION) whereas contextual words are the remaining uni-gram words. New entities are the entities not in DBpedia, and Know entities are the entities in the DBpedia. E is a set of edges (co-occurrences) of entity-entity, entity-word, and word-word corrences. Words within every 5-word sliding window in a news sentence are considered to be co-occuring with each other. The weights are represented by adjacency matrix using dataframe.
 
     Attributes:
-        nodes: dictionary of nodes {"N (new entity)": [(word, label)], "C (contextual word)": [(word, label)]} in the graph; Including two types of objects (i.e. new entites, and contextual words).
+        nodes: dictionary of nodes {"N (new entity)": [(word, label)], "K (Known entity)": [(word, label)], "C (Contextual word)": [(word, label)]} in the graph; Includes 3 types of objects (i.e. e new entites, known entities, and contextual words).
         edges: set contains the tuples. e.g. ("A", "B") indicates a link between node "A" and node "B".
         weights: The weights are represented by adjacency matrix using dataframe.
         news: list of news articles (articles are string type).
@@ -45,30 +43,54 @@ class Graph(object):
         4) Match entities (i.e. person, org, loc) against DBpedia
 
         Returns:
-            Returns a dictionary contains two types of objects (i.e. new entites, and contextual words). E.g. {"N": [("Washington", LOCATION)], "C":[("Trump", PERSON), ("Hua Wei", ORGANIZATION)]}
+            Returns a dictionary contains 3 types of objects (i.e. new entites, known entities, and contextual words). E.g. {"N": [("Washington", "LOCATION")], "K":[("Trump", "PERSON"), ("Hua Wei", "ORGANIZATION")], "C": [("the", "O"), ("am", "O")]}
         """
 
         # parse news articles
         tagged_words = self.reader.parse_news(self.news)
-        new, contextual = self.search.query(tagged_words)
+        # seperate entities from contextual words
+        entities, cwords = self.__entities_words(tagged_words)
+        new_e, known_e = self.search.query(entities)
 
         ret = dict()
-        ret["N"] = list(set(new))
-        ret["C"] = list(contextual)
+        ret["N"] = list(set(new_e))
+        ret["K"] = list(set(known_e))
+        ret["C"] = list(set(cwords))
 
         return dict(ret)
 
-    def get_words(self):
+    def get_nodes(self):
         """
-        Getter method which returns a list of words from self.nodes.
+        Getter method which returns all nodes from self.nodes.
         """
         ret = set()
         for i in self.nodes["N"]:
             ret.add(i[0]) 
+        for i in self.nodes["K"]:
+            ret.add(i[0])
         for i in self.nodes["C"]:
             ret.add(i[0])
         return list(ret)
 
+    def get_entities(self):
+        """
+        Getter method which returns a list of entities (i.e. word tagged with "PERSON", "LOCATION", "ORGANIZATION") from self.nodes.
+        """
+        ret = set()
+        for i in self.nodes["N"]:
+            ret.add(i[0]) 
+        for i in self.nodes["K"]:
+            ret.add(i[0])
+        return list(ret)
+
+    def get_words(self):
+        """
+        Getter method which returns a list of contextual words from self.nodes.
+        """
+        ret = set()
+        for i in self.nodes["C"]:
+            ret.add(i[0]) 
+        return list(ret)
 
     def __create_edges(self, window_size=5):
         """Private class method
@@ -121,7 +143,7 @@ class Graph(object):
         Returns:
             Return a copy of dataframe representing the weights matrix.
         """
-        words = self.get_words()
+        words = self.get_nodes()
         df = pd.DataFrame(index=words,columns=words).fillna(0)
 
         for article in self.news:
@@ -139,3 +161,25 @@ class Graph(object):
 
     def get_weights(self):
         return self.edge_weights.copy()
+
+    def __entities_words(self, tagged_words):
+        """Private class method
+        Seperate the entity words from the comtextual words.
+
+        Args:
+            tagged_words: list of strings; a list of tuples (word, label)
+
+        Returns:
+            entities: words tagged with "PERSON", "LOCATION", "ORGANIZATION".
+            cwords: words tagged with "O" 
+        """          
+        entities = list()
+        cwords = list()
+        for word in tagged_words:
+            if word[1] == "O":
+                # contextual words
+                cwords.append(word)
+            else:
+                entities.append(word)
+        assert len(entities) + len(cwords) == len(tagged_words)
+        return entities, cwords

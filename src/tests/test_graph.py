@@ -1,11 +1,11 @@
 import unittest
 from src.graph import Graph
 
-NEWS = ["President Trump took a few sharp verbal shots at House Speaker Nancy Pelosi at the White House Thursday as he announced $16 billion in new subsidies for farmers and ranchers, questioning the mental faculties of the most powerful woman in Washington.", "Hazzaaaa!"]
+NEWS = ["President Trump took a few sharp verbal shots at House Speaker Nancy Pelosi at the White House Thursday as he announced $16 billion in new subsidies for farmers and ranchers, questioning the mental faculties of the most powerful woman in Washington.", "hazzaaaa!"]
 
-NEWS_NODES = {'N': [('Hazzaaaa', 'O')], 'C': [('President', 'O'), ('Trump', 'PERSON'), ('took', 'O'), ('sharp', 'O'), ('verbal', 'O'), ('shots', 'O'), ('House', 'ORGANIZATION'), ('Speaker', 'O'), ('Nancy', 'PERSON'), ('Pelosi', 'PERSON'), ('White', 'ORGANIZATION'), ('House', 'ORGANIZATION'), ('Thursday', 'O'), ('announced', 'O'), ('billion', 'O'), ('new', 'O'), ('subsidies', 'O'), ('farmers', 'O'), ('ranchers', 'O'), ('questioning', 'O'), ('mental', 'O'), ('faculties', 'O'), ('powerful', 'O'), ('woman', 'O'), ('Washington', 'LOCATION')]}
+NEWS_NODES = {'N': [('hazzaaaa', 'O')], 'C': [('President', 'O'), ('Trump', 'PERSON'), ('took', 'O'), ('sharp', 'O'), ('verbal', 'O'), ('shots', 'O'), ('House', 'ORGANIZATION'), ('Speaker', 'O'), ('Nancy', 'PERSON'), ('Pelosi', 'PERSON'), ('White', 'ORGANIZATION'), ('House', 'ORGANIZATION'), ('Thursday', 'O'), ('announced', 'O'), ('billion', 'O'), ('new', 'O'), ('subsidies', 'O'), ('farmers', 'O'), ('ranchers', 'O'), ('questioning', 'O'), ('mental', 'O'), ('faculties', 'O'), ('powerful', 'O'), ('woman', 'O'), ('Washington', 'LOCATION')]}
 
-NEWS_WORDS = ['Hazzaaaa', 'President', 'Trump', 'took', 'sharp', 'verbal',
+NEWS_WORDS = ['hazzaaaa', 'President', 'Trump', 'took', 'sharp', 'verbal',
               'shots', 'House', 'Speaker', 'Nancy', 'Pelosi', 'White',
               'House', 'Thursday', 'announced', 'billion', 'new', 'subsidies',
               'farmers', 'ranchers', 'questioning', 'mental', 'faculties', 'powerful', 'woman', 'Washington']
@@ -15,11 +15,30 @@ class TestGraph(unittest.TestCase):
         self.graph = Graph(NEWS)
 
 
+    def test_get_nodes(self):
+        self.graph = Graph(NEWS)
+        res = self.graph.get_nodes()
+
+        assert set(res) == set(NEWS_WORDS)
+
+    def test_get_entities(self):
+        self.graph = Graph(NEWS)
+        res = self.graph.get_entities()
+        print("print out entities")
+        print(res)
+        assert set(res) == set(['Trump', 'Nancy', 'Pelosi', 'White', 'House',
+                                'Washington'])
+
     def test_get_words(self):
         self.graph = Graph(NEWS)
         res = self.graph.get_words()
-
-        assert set(res) == set(NEWS_WORDS)
+        print("print out words")
+        print(res)
+        assert set(res) == set(['hazzaaaa', 'President','took', 'sharp',
+                                'verbal', 'shots', 'Speaker', 'Thursday', 
+                                'announced', 'billion', 'new', 'subsidies',
+                                'farmers', 'ranchers', 'questioning', 'mental',
+                                'faculties', 'powerful', 'woman'])
 
     def test_sliding_window(self):
         a=[1,2,3,4,5,6,7]
@@ -58,7 +77,6 @@ class TestGraph(unittest.TestCase):
         assert df.loc["edge", "text"] == 2
         assert df.loc["edge", "graph"] == 6
         assert df.loc["graph", "edge"] == 6
-
 
 if __name__ == "__main__":
     unittest.main()
