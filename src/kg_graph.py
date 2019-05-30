@@ -3,7 +3,7 @@ from src.graph import Graph
 
 class KG(Graph):
     """
-    A subclass of Graph class. It represents the heterogeneous textual graph (undirected graph). G = <V, E>. V is the set of nodes (objects), including 1 types of objects (i.e. known entities). Entities are words (with label: PERSON, LOCATION, and ORGANIZATION) whereas contextual words are the remaining uni-gram words. Know entities are the entities in the DBpedia. E is a set of edges (co-occurrences) of entity-entity. Words within every 5-word sliding window in a news sentence are considered to be co-occuring with each other. The weights are represented by adjacency matrix using dataframe.
+    A subclass of Graph class. It represents the heterogeneous textual graph (undirected graph). G = <V, E>. V is the set of nodes (objects), including 1 types of objects (i.e. known entities). Entities are words (with label: PERSON, LOCATION, and ORGANIZATION) whereas contextual words are the remaining uni-gram words. Known entities are the entities in the DBpedia. E is a set of edges (co-occurrences) of entity-entity. Words within every 5-word sliding window in a news sentence are considered to be co-occuring with each other. The weights are represented by adjacency matrix using dataframe.
 
     Attributes:
         nodes: dictionary of nodes {"K (Known entity)": [(word, label)]} in the graph; Includes 1 types of objects (i.e. known entities).
