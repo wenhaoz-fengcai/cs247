@@ -28,9 +28,8 @@ class G_Classifier():
         self.classifier = MLPClassifier(hidden_layer_sizes=(10,10,10), solver)
 
         self.embeddings = None #call function to get embeddings
-        self.known_comb, self.all_combinations = __create_combinations(self.ee_graph.nodes)
-        self.ee_embeddings = __embed_pairs(self.all_combinations)
-        self.S_known = self.__random_sample(self.ee_embeddings, self.ee_embeddings.shape[0] * 0.25)
+        self.known_comb, self.new_comb, self.all_comb = __create_combinations(self.ee_graph.nodes)
+        self.S_known = self.__random_sample(self.all_comb, self.all_comb.shape[0] * 0.25)
         __train_classifier()
 
         self.eps = self.__generate_eps(self.sample)
@@ -46,8 +45,9 @@ class G_Classifier():
             Dataframe: A df containing the embeddings of the entity-entity pairs as values and indexed by e-e pair
         """
 
-        embeddings = {pair, self.__h(pair) for pair in pairs}
+        embeddings = {str(pair), self.__h(pair) for pair in pairs}
         embeddings = pd.from_dict(embeddings, orient='index')
+        embeddings.rename(index=str, columns={'0': 'embedding'})
         return embeddings
 
 
@@ -60,13 +60,27 @@ class G_Classifier():
 
         Returns:
             list: A list containing all combiantions of known entity-entity pair
+            list: A list containing all combiantions of new entity-entity pair
             list: A list containing all combinations of every entity-entity pair
         """
 
+        # get entities that are known and new, then combine
         known = list(zip(*nodes['K']))[0]
         new = list(zip(*nodes['N']))[0]
         combined = known + new
-        return combinations(known, 2), combinations(combined, 2)
+
+        # make all pairs of entities from each list and convert to dataframe
+        known = self.__embed_pairs(combinations(known, 2))
+        new = self.__embed_pairs(combinations(new, 2))
+        combined = self.__embed_pairs(combinations(combined, 2))
+
+        # add column for value of z
+        known.insert(1, 'z', 1)
+        new.insert(1, 'z', 0)
+        combined.insert(1, 'z', 0)
+        combined.loc[known.index, 'z'] = 1
+
+        return  known, new, combined
 
     def __h(self, x, y):
         """
@@ -96,13 +110,13 @@ class G_Classifier():
 
         size_known = 0
         while size_known < 50:  # want a random sample of minimum size (min size is arbitrary)
-            S = nodes.sample(sample_size)
+            S = pairs.sample(sample_size)
             S_known = S.loc[self.known, :]
             size_known = S_known.shape[0]
 
         return S_known
 
-    def __train_classifier(self):
+    def __train_classifier(self, pairs):
         pass
 
 
