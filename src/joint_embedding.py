@@ -17,14 +17,22 @@ class Embedding(object):
     """
 
     """
-    def __init__(self, heer, kg):
+    def __init__(self, d=10):
 
-        self.S = pd.DataFrame()
-        self.T = pd.DataFrame()
-        self.ee_graph = 1
-        self.ec_graph = 1
-        self.cc_graph = 1
-        self.kg_graph = 1
+        self.read = Reader()
+        self.search = Search()
+        self.news_list = self.read.read_csv_file("../data/mixed-news/articles-title_only.csv")
+        self.entity = self.read.parse_news(self.news_list[0:1])
+        self.new, self.exist = self.search.query(self.entity)
+        self.graph = Graph(self.news_list)
+        self.words = self.graph.get_words()
+        self.entities = self.graph.get_entities()
+        self.ee_graph = EE(self.news_list)
+        self.ec_graph = EC(self.news_list)
+        self.cc_graph = CC(self.news_list)
+        self.kg_graph = KG(self.news_list)
+        self.S = pd.DataFrame(randint(0, 10), index=self.entities, columns=d)
+        self.T = pd.DataFrame(randint(0, 10), index=self.words, columns=d)
 
     def weighted_sample(self, items, n):
         total = float(sum(w for w, v in items))
@@ -41,24 +49,16 @@ class Embedding(object):
             yield v
             n -= 1
 
-    def embedding_update(self, s, t, g=Graph, k=10, n=0):
+    def embedding_update(self, s, t, g, k=10):
         eta = 0.2
-        edges = g.get_edges()
         # Sample an edge from G and draw k negative edges
         # and I guess, when we sample an edge, we also update that node's weight in the embedding!
         # So for sampling I should have all the weights,
 
-        # items = [(10, "low"),
-        #          (100, "mid"),
-        #          (890, "large")]
-        items = [(10, ('a', 'b')),
-                 (100, ('c', 'b')),
-                 (890, ('d', 'c'))]
-
         edges_weights = []
         edges = []
         warning = '!'
-        sampled_edge = self.weighted_sample(items, 1)
+        sampled_edge = self.weighted_sample(g.get_edges(), 1)
         sampled_node_a = sampled_edge[0]
         sampled_node_b = sampled_edge[1]
         #swap!
@@ -67,15 +67,22 @@ class Embedding(object):
                 s1 = sampled_node_b
                 sampled_node_b = sampled_node_a
                 sampled_node_a = s1
-        if s == 1 and t == 1:
-            s1 = sampled_edge[0]
-            s2 = sampled_edge[1]
-        if s == t:
-            nodes = g.get_words()
-        else:
-            nodes = g.get_nodes() # so I think we should have all the nodes! => get_nodes()
-        # draw k negative edges!
-        sampled_edge_nodes = random.sample(nodes, k) # [k]
+        samplede_neg_nodes = []
+        for i in k:
+            if s == 1 and t == 1:
+                samplede_neg_nodes[i] = g.get_entities()
+            else:
+                samplede_neg_nodes[i] = g.get_nodes()
+        samplede_neg_nodes[k+1] = sampled_node_b
+        # if s == 1 and t == 1:
+        #     s1 = sampled_edge[0]
+        #     s2 = sampled_edge[1]
+        # if s == t:
+        #     nodes = g.get_words()
+        # else:
+        #     nodes = g.get_nodes() # so I think we should have all the nodes! => get_nodes()
+        # # draw k negative edges!
+        # sampled_edge_nodes = random.sample(nodes, k) # [k]
 
         #so up until here, we have k negative edges, one positive edge, the graph, and S_t, T_t
         if s == 1 and t == 1:  # S, T, G_ec
@@ -130,7 +137,6 @@ class Embedding(object):
         k = 10
         # number of iterations
         t = 100
-
         # initializing the embeddings
         # Sampling would be like this: (though I'm not sure about the numbers)
         # S = pd.DataFrame(randint(0, 100), index=(0, 100), columns=(0, 100))
@@ -139,9 +145,9 @@ class Embedding(object):
         while t > 0:
             gamma = random.uniform(0, 1)
             if gamma <= theta:
-                self.embedding_update(self.S, self.S, self.kg_graph, k, 1)
+                self.embedding_update(1, 0, self.kg_graph, k)
             else:
-                self.embedding_update(self.S, self.T, self.ec_graph, k, 2)
-                self.embedding_update(self.S, self.S, self.ee_graph, k, 3)
-                self.embedding_update(self.T, self.T, self.cc_graph, k, 4)
+                self.embedding_update(1, 1, self.ec_graph, k)
+                self.embedding_update(1, 0, self.ee_graph, k)
+                self.embedding_update(0, 1, self.cc_graph, k)
             t = t - 1
