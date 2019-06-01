@@ -14,16 +14,14 @@ from numpy.linalg import inv
 
 
 class Embedding(object):
-    """
-
-    """
+        """
+        Python class which produces the joint embedding of the words and entities.
+        Attributes:
+        """
     def __init__(self, d=10):
 
         self.read = Reader()
-        self.search = Search()
         self.news_list = self.read.read_csv_file("./data/mixed-news/articles-title_only.csv")
-        self.entity = self.read.parse_news(self.news_list[0:1])
-        self.new, self.exist = self.search.query(self.entity)
         self.graph = Graph(self.news_list)
         self.words = self.graph.get_words()
         self.entities = self.graph.get_entities()
@@ -35,6 +33,13 @@ class Embedding(object):
         self.T = pd.DataFrame(randint(0, 10), index=self.words, columns=d)
 
     def weighted_sample(self, items, n):
+        """
+        This function search in the DBpedia and checks if entities exist in knowledge base.
+        Args:
+            entities: a list of tuples; words, and their labels.
+        Returns:
+            Yields the chosen edge, proportional to it' weight
+        """
         total = float(sum(w for w, v in items))
         i = 0
         w, v = items[0]
@@ -50,6 +55,12 @@ class Embedding(object):
             n -= 1
 
     def embedding_update(self, s, t, g, k=10):
+        """
+        This function search in the DBpedia and checks if entities exist in knowledge base.
+        Args:
+            entities: a list of tuples; words, and their labels.
+            
+        """
         eta = 0.2
         # Sample an edge from G and draw k negative edges
         # and I guess, when we sample an edge, we also update that node's weight in the embedding!
@@ -123,6 +134,12 @@ class Embedding(object):
             self.S[sampled_node_b] = self.S[sampled_node_b] - e
 
     def joint_embedding(self):
+        """
+        This function search in the DBpedia and checks if entities exist in knowledge base.
+        Args:
+            entities: a list of tuples; words, and their labels.
+            
+        """
         # the guiding parameter, which we should have empirically
         theta = 0.8
         # number of negative samplings
