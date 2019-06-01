@@ -20,7 +20,7 @@ class Embedding(object):
         cc_graph: A heterogeneous subgraph of HEER, showing relations between words
         ec_graph: A bipartite subgraph of HEER, showing relations between entities and words
         """
-    def __init__(self, d=10):
+        def __init__(self, d=10):
 
         self.read = Reader()
         self.news_list = self.read.read_csv_file("./data/mixed-news/articles-title_only.csv")
@@ -34,7 +34,7 @@ class Embedding(object):
         self.S = pd.DataFrame(randint(0, 10), index=self.entities, columns=d)
         self.T = pd.DataFrame(randint(0, 10), index=self.words, columns=d)
 
-    def weighted_sample(self, items, n):
+        def weighted_sample(self, items, n):
         """
         This function samples an item, proportional to it's weight attribute.
         Args:
@@ -57,7 +57,7 @@ class Embedding(object):
             yield v
             n -= 1
 
-    def embedding_update(self, s, t, g, k=10):
+        def embedding_update(self, s, t, g, k=10):
         """
         This function updates the embeddings of words and entitites.
         Args:
@@ -65,7 +65,7 @@ class Embedding(object):
             t: A binary number, indicting the type of embedding that should be updated.
             g: The graph; It could be the ee, cc, or ec subgraph, or the kg graph.
             k: Number of negative edges.
-            
+
         """
         eta = 0.2
         # Sample an edge from G and draw k negative edges
@@ -139,14 +139,14 @@ class Embedding(object):
             e = - eta * d * c
             self.S[sampled_node_b] = self.S[sampled_node_b] - e
 
-    def joint_embedding(self):
+        def joint_embedding(self):
         """
         This function runs the iteration to minimize the cost function, and calls the update function.
         Attributes:
             theta: The guiding parameter, chosen empirically. The bigger it is, the more effective the kg graph is.
             k: Number of negatve smaples.
             t: Number of iterations.
-            
+
         """
         # the guiding parameter, which we should have empirically
         theta = 0.8
