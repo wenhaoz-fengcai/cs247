@@ -131,6 +131,15 @@ class G_Classifier():
         return S_known
 
     def __train_classifier(self, pairs):
+        """
+        private class method for training the classifier
+
+        Args:
+            pairs (dataframe): The dataframe containing all entity pairs
+
+        Returns:
+            bool: True if complete
+        """
 
         X = np.array(pairs.loc[:, "embedding"])
         y = np.array(pairs.loc[:, 'z'])
