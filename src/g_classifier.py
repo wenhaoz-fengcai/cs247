@@ -32,7 +32,7 @@ class G_Classifier():
         self.classifier = MLPClassifier(hidden_layer_sizes=(10,10,10), solver)
 
         self.embeddings = None #call function to get embeddings
-        self.known_comb, self.new_comb, self.all_comb = __create_combinations(self.ee_graph.nodes)
+        self.known_comb, self.new_comb, self.all_comb = __create_combinations(self.ee_graph.nodes, self.embeddings)
         self.S_known = self.__random_sample(self.all_comb, self.all_comb.shape[0] * 0.25)
         __train_classifier()
 
@@ -49,13 +49,13 @@ class G_Classifier():
             Dataframe: A df containing the embeddings of the entity-entity pairs as values and indexed by e-e pair
         """
 
-        embeddings = {str(pair), self.__h(pair) for pair in pairs}
+        embeddings = {str(pair[0]), self.__h(pair[1][0], pair[1][0]) for pair in pairs}
         embeddings = pd.from_dict(embeddings, orient='index')
         embeddings.rename(index=str, columns={'0': 'embedding'})
         return embeddings
 
 
-    def __create_combinations(self, nodes):
+    def __create_combinations(self, nodes, embeddings):
         """
         Private class method that takes all entities and creates every entity-entity pair
 
@@ -73,10 +73,20 @@ class G_Classifier():
         new = list(zip(*nodes['N']))[0]
         combined = known + new
 
+        # create combos
+        known = combinations(known, 2)
+        new = combinations(new, 2)
+        combined = combinations(combined, 2)
+
+        # for each pair get embeddings
+        known = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in known]    # dont know column name in dataframe corresponding to embedding yet
+        new = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in new]    # dont know column name in dataframe corresponding to embedding yet
+        combined = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in combined]  # dont know column name in dataframe corresponding to embedding yet
+
         # make all pairs of entities from each list and convert to dataframe
-        known = self.__embed_pairs(combinations(known, 2))
-        new = self.__embed_pairs(combinations(new, 2))
-        combined = self.__embed_pairs(combinations(combined, 2))
+        known = self.__embed_pairs(known)
+        new = self.__embed_pairs(new)
+        combined = self.__embed_pairs(combined)
 
         # add column for value of z
         known.insert(1, 'z', 1)
