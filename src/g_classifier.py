@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 from sklearn.neural_network import MLPClassifier
 
-from ee_graph import EE
-from kg_graph import KG
-from reader import Reader
+from src.ee_graph import EE
+from src.kg_graph import KG
+from src.reader import Reader
 
 
 class G_Classifier():
