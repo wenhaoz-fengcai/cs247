@@ -17,6 +17,10 @@ class Embedding(object):
         """
         Python class which produces the joint embedding of the words and entities.
         Attributes:
+        kg_graph: The knowledge Graph
+        ee_graph: A heterogeneous subgraph of HEER, showing relations between entities
+        cc_graph: A heterogeneous subgraph of HEER, showing relations between words
+        ec_graph: A bipartite subgraph of HEER, showing relations between entities and words
         """
     def __init__(self, d=10):
 
@@ -34,9 +38,10 @@ class Embedding(object):
 
     def weighted_sample(self, items, n):
         """
-        This function search in the DBpedia and checks if entities exist in knowledge base.
+        This function samples an item, proportional to it's weight attribute.
         Args:
-            entities: a list of tuples; words, and their labels.
+            items: the list of edges we should choose between them.
+            n: number of edges we should choose.
         Returns:
             Yields the chosen edge, proportional to it' weight
         """
@@ -56,9 +61,12 @@ class Embedding(object):
 
     def embedding_update(self, s, t, g, k=10):
         """
-        This function search in the DBpedia and checks if entities exist in knowledge base.
+        This function updates the embeddings of words and entitites.
         Args:
-            entities: a list of tuples; words, and their labels.
+            s: A binary number, indicting the type of embedding that should be updated.
+            t: A binary number, indicting the type of embedding that should be updated.
+            g: The graph; It could be the ee, cc, or ec subgraph, or the kg graph.
+            k: Number of negative edges.
             
         """
         eta = 0.2
@@ -135,9 +143,11 @@ class Embedding(object):
 
     def joint_embedding(self):
         """
-        This function search in the DBpedia and checks if entities exist in knowledge base.
-        Args:
-            entities: a list of tuples; words, and their labels.
+        This function runs the iteration to minimize the cost function, and calls the update function.
+        Attributes:
+            theta: The guiding parameter, chosen empirically. The bigger it is, the more effective the kg graph is.
+            k: Number of negatve smaples.
+            t: Number of iterations.
             
         """
         # the guiding parameter, which we should have empirically
