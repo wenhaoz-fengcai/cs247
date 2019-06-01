@@ -17,9 +17,13 @@ class G_Classifier():
 
     Attributes:
         ee_graph: The entity-entity sub-graph of the KG
+        classifier: The classifier used to model P(z=1|y=1). A neural network
         embeddings: The embeddings of all words in the KG
-        e_combinations: The combinations of all pairs of entities
-        ee_embeddings: The embeddings of all entity-entity pairs
+        known_comb: The combinations of known pairs of entities
+        new_comb: The combinations of new pairs of entities
+        all_comb: The combinations of all pairs of entities
+        S_known: The random subset of all_comb which contains entity pairs that are known
+        eps: The value of epsilon which is used by the second classifier
     """
 
     def __init__(self, lst_news):
