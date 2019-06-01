@@ -1,13 +1,14 @@
+import os
+from itertools import combinations
+
+import numpy as np
+import pandas as pd
+from sklearn.neural_network import MLPClassifier
+
 from ee_graph import EE
 from kg_graph import KG
 from reader import Reader
-import os
-import pandas as pd
-import numpy as np
-from itertools import combinations
-from random import seed, shuffle
-from time import time
-from sklearn.neural_network import MLPClassifier
+
 
 class G_Classifier():
     """
@@ -23,7 +24,6 @@ class G_Classifier():
 
     def __init__(self, lst_news):
 
-        seed(time())
         self.ee_graph = EE(lst_news)
         self.classifier = MLPClassifier(hidden_layer_sizes=(10,10,10), solver)
 
@@ -32,7 +32,7 @@ class G_Classifier():
         self.S_known = self.__random_sample(self.all_comb, self.all_comb.shape[0] * 0.25)
         __train_classifier()
 
-        self.eps = self.__generate_eps(self.sample)
+        self.eps = self.__generate_eps(self.S_known)
 
     def __embed_pairs(self, pairs):
         """
@@ -117,9 +117,13 @@ class G_Classifier():
         return S_known
 
     def __train_classifier(self, pairs):
-        pass
 
+        X = np.array(pairs.loc[:, "embedding"])
+        y = np.array(pairs.loc[:, 'z'])
 
+        self.classifier.fit(X, y)
+
+        return True
 
     def __generate_eps(self, random_sample):
         """
@@ -131,8 +135,11 @@ class G_Classifier():
         Returns:
             int: the value of epsilon
         """
+        X = np.array(random_sample.loc[:, "embedding"])
+        size = random_sample.shape[0]
+        probs = self.classifier.predict_proba(X)
 
-        return (1. / len(random_sample)) * np.sum(self.classify(random_sample))
+        return (1. / size) * np.sum(probs)
 
 
 
@@ -143,4 +150,3 @@ if __name__ == "__main__":
     # reader = Reader()
     # reader.read_files(root + '/data/bbc/business/')
     g = G(["Trump demands trade war with China Hazzaaaa"])
-
