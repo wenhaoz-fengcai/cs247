@@ -1,10 +1,8 @@
 import pandas as pd
 import numpy as np
-import networkx as nx
 import random
 from random import randint
 from src.reader import Reader
-from src.search import Search
 from src.graph import Graph
 from src.ee_graph import EE
 from src.ec_graph import EC
