@@ -186,11 +186,34 @@ class G_Classifier():
         results_df.insert(2, 'probs', probs)
         return results_df
 
-    def filter_results(self, results_df, kg_df, threshold):
+    def filter_results(self, results_df, kg_df, new_comb, threshold):
+        """
+        Filter results down to entity-entity pairs that have exactly one node in KG and whose probabilities are >=
+        threshold
+
+        Args:
+            results_df (Dataframe): The dataframe containing predicted probabilities for each e-e pair
+            kg_df (Dataframe): The KG dataframe
+            new_comb (list): The list containing all combinations of new entity-entity pairs
+            threshold (float): The theshold the probability must be greater than in order to be consider an emerging relation
+
+        Returns:
+            Dataframe: The remaining relations
+        """
 
         # get entity-entity pairs that are not in KG
         intersection = results_df.Index.intersection(kg_df.Index)
         results_df = results_df.loc[intersection, :]
+
+        # get entity-entity pairs that have at least 1 node in KG
+        new_comb = pd.Index(new_comb)
+        intersection = results_df.Index.intersection(new_comb)
+        results_df = results_df.loc[intersection, :]
+
+        # filter results down to entity-entity pairs with probability >= threshold
+        results_df = results_df.where(results_df['probs'] >= threshold)
+
+        return results_df
 
 
 
