@@ -12,37 +12,49 @@ from src.reader import Reader
 
 class G_Classifier():
     """
-    The class of the initial classifier g. This class first embeds all entity-entity pairs and then models z from the
-    KG. The classifier f is then derived from this classifier.
+    The class of the classifier g. This class first embeds all entity-entity pairs and then models P(z=1|x) from the
+    KG and uses this to estimate P(z=1|y=1). The classifier f is then derived from this classifier.
 
     Attributes:
-        ee_graph: The entity-entity sub-graph of the KG
-        classifier: The classifier used to model P(z=1|y=1). A neural network
+        ee_graph: The entity-entity graph
+        classifier: The classifier used to model P(z=1|x). A neural network.
         embeddings: The embeddings of all words in the KG
-        known_comb: The combinations of known pairs of entities
+        kg_df: The combinations of known pairs of entities and their embedings
         new_comb: The combinations of new pairs of entities
-        all_comb: The combinations of all pairs of entities
-        S_known: The random subset of all_comb which contains entity pairs that are known
-        eps: The value of epsilon which is used by the second classifier
+        all_df: The combinations of all pairs of entities and their embedings and 'z' values
+        S_known: The random subset of all_df which contains entity pairs that are known
+        eps: The value of epsilon which is used to scale the classifier. Estiamtion of P(z=1|y=1).
+        results_df: The pairs of all e-e pairs and their corresponding probability of being an emerging relation
+        emerging_relations: The predict emerging relations after filtering results_df
     """
 
-    def __init__(self, lst_news, architecture=(10,10,10), sample_size=0.25, minimum_sample=50, threshold=0.7):
+    def __init__(self, lst_news, architecture=(10,10,10), sample_size=0.25, threshold=0.7):
+        """
+        Constructor
+
+        Args:
+            lst_news (list): The news to parse
+            architecture (tuple, optional): The architecture of the hidden layers in the classifier. Defaults to (10,10,10).
+            sample_size (float, optional): The fraction of total samples to randomly sample in order to estimate epsilon. Defaults to 0.25.
+            threshold (float, optional): The probability threshold to be considered an emerging relation. Defaults to 0.7.
+        """
 
         self.ee_graph = EE(lst_news)
         self.kg_graph = KG(lst_news)
         self.classifier = MLPClassifier(hidden_layer_sizes=architecture)
 
         self.embeddings = None #call function to get embeddings
-        self.all_df, self.kg_df self.new_comb = __create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.ee_graph.nodes, self.embeddings)
-        self.S_known = self.__random_sample(self.all_df, sample_size, minimum_sample)
-        self.classifier = __train_classifier(self.classifier, self.all_df)
-        self.eps = self.__generate_eps(self.S_known)
+        self.all_df, self.kg_df self.new_comb = create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.ee_graph.nodes, self.embeddings)
+        self.S_known = self.random_sample(self.all_df, sample_size, minimum_sample)
+        self.classifier = train_classifier(self.classifier, self.all_df)
+        self.eps = self.generate_eps(self.S_known)
         self.results_df = self.predict_emerging_probs(self.classifier, self.eps)
         self.emerging_relations = self.filter_results(self.results_df, self.kg_df, self.new_comb, threshold)
 
-    def __embed_pairs(self, pairs):
+    def embed_pairs(self, pairs):
         """
-        Private class method that embeds an entity-entity pair according to the function h.
+        Embeds an entity-entity pair according to the function h and combines the pair and embedding into a dataframe
+        indexed by the pair
 
         Args:
             pairs (list): A list containing entity-entity pairs
@@ -56,10 +68,10 @@ class G_Classifier():
         embeddings.rename(index=str, columns={'0': 'embedding'})
         return embeddings
 
-    def __create_combinations(self, ee_nodes, kg_nodes, nodes, embeddings):
+    def create_combinations(self, ee_nodes, kg_nodes, nodes, embeddings):
         """
-        Private class method. Top level function that parses entities from graphs, pairs them with their embedings,
-        calls __embed_pairs() to combine embedings, and gives proper 'z' labels to all e-e pairs.
+        Top level function that parses entities from graphs, pairs them with their embedings,
+        calls embed_pairs() to combine embedings, and gives proper 'z' labels to all e-e pairs.
 
         Args:
             ee_nodes (list): A list containing all entities as (word, label) pairs
@@ -98,9 +110,9 @@ class G_Classifier():
 
         return  all_df, kg_df, new_comb
 
-    def __h(self, x, y):
+    def h(self, x, y):
         """
-        Private class method that combines two word embeddings according to function defined in the paper (average)
+        Combines two word embeddings according to function defined in the paper (average)
 
         Args:
             x (np array): The embedding of the first word
@@ -112,7 +124,7 @@ class G_Classifier():
 
         return 0.5 * np.add(x, y) # forumula from paper
 
-    def __random_sample(self, all_df, sample_size, min_sample):
+    def random_sample(self, all_df, sample_size):
         """
         Obtain random sample of all entity pairs which are in the KG
 
@@ -125,17 +137,14 @@ class G_Classifier():
         """
 
         sample_size = all_df.shape[0] * sample_size
-        size_known = 0
-        while size_known < min_sample:  # want a random sample of minimum size (min size is arbitrary)
-            S = all_df.sample(sample_size)
-            S_known = S.where(S['z'] == 1)
-            size_known = S_known.shape[0]
+        S = all_df.sample(sample_size)
+        S_known = S.where(S['z'] == 1)
 
         return S_known
 
-    def __train_classifier(self, classifier, all_df):
+    def train_classifier(self, classifier, all_df):
         """
-        private class method for training the classifier
+        For training the classifier
 
         Args:
             classifier (sklearn classifier): The classifier to train
@@ -152,9 +161,9 @@ class G_Classifier():
 
         return classifier
 
-    def __generate_eps(self, classifier, random_sample):
+    def generate_eps(self, classifier, random_sample):
         """
-        Private class method for calculating epsilon which is used to scale the classifier f
+        For calculating epsilon which is used to scale the classifier g to get final predictions
 
         Args:
             classifier (sklearn classifier): The trained classifier
