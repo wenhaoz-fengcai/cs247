@@ -35,7 +35,7 @@ class G_Classifier():
         self.embeddings = None #call function to get embeddings
         self.all_df, self.kg_df = __create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.embeddings)
         self.S_known = self.__random_sample(self.all_df, sample_size, minimum_sample)
-        __train_classifier()
+        self.classifier = __train_classifier(self.classifier, self.all_df)
 
         self.eps = self.__generate_eps(self.S_known)
 
@@ -170,37 +170,40 @@ class G_Classifier():
 
         return S_known
 
-    def __train_classifier(self, pairs):
+    def __train_classifier(self, classifier, all_df):
         """
         private class method for training the classifier
 
         Args:
+            classifier (sklearn classifier): The classifier to train
             pairs (dataframe): The dataframe containing all entity pairs
 
         Returns:
-            bool: True if complete
+            sklearn classifier: The trained classifier
         """
 
-        X = np.array(pairs.loc[:, "embedding"])
-        y = np.array(pairs.loc[:, 'z'])
+        X = np.array(all_df.loc[:, "embedding"])
+        y = np.array(all_df.loc[:, 'z'])
 
-        self.classifier.fit(X, y)
+        classifier.fit(X, y)
 
-        return True
+        return classifier
 
-    def __generate_eps(self, random_sample):
+    def __generate_eps(self, classifier, random_sample):
         """
         Private class method for calculating epsilon which is used to scale the classifier f
 
         Args:
+            classifier (sklearn classifier): The trained classifier
             random_sample (Dataframe): The dataframe containing the random samples of entity-entity pairs that exist in KG
 
         Returns:
             int: the value of epsilon
         """
+
         X = np.array(random_sample.loc[:, "embedding"])
         size = random_sample.shape[0]
-        probs = self.classifier.predict_proba(X)
+        probs = classifier.predict_proba(X)
 
         return (1. / size) * np.sum(probs)
 
