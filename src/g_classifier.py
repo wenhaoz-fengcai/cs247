@@ -26,14 +26,15 @@ class G_Classifier():
         eps: The value of epsilon which is used by the second classifier
     """
 
-    def __init__(self, lst_news):
+    def __init__(self, lst_news, architecture=(10,10,10)):
 
         self.ee_graph = EE(lst_news)
-        self.classifier = MLPClassifier(hidden_layer_sizes=(10,10,10), solver)
+        self.kg_graph = KG(lst_news)
+        self.classifier = MLPClassifier(hidden_layer_sizes=architecture)
 
         self.embeddings = None #call function to get embeddings
-        self.known_comb, self.new_comb, self.all_comb = __create_combinations(self.ee_graph.nodes, self.embeddings)
-        self.S_known = self.__random_sample(self.all_comb, self.all_comb.shape[0] * 0.25)
+        self.all_df, self.kg_df = __create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.embeddings)
+        self.S_known = self.__random_sample(self.all_df, self.all_df.shape[0] * 0.25)
         __train_classifier()
 
         self.eps = self.__generate_eps(self.S_known)
@@ -54,47 +55,85 @@ class G_Classifier():
         embeddings.rename(index=str, columns={'0': 'embedding'})
         return embeddings
 
-
-    def __create_combinations(self, nodes, embeddings):
+    def __create_combinations(self, ee_nodes, kg_nodes, embeddings):
         """
-        Private class method that takes all entities and creates every entity-entity pair
+        Private class method. Top level function that parses entities from graphs, pairs them with their embedings,
+        calls __embed_pairs() to combine embedings, and gives proper 'z' labels to all e-e pairs.
 
         Args:
-            nodes (dict): A dictionary that contains all known entities and all new entities
+            ee_nodes (list): A list containing all entities as (word, label) pairs
+            kg_nodes (list): A list containing known entites as (word, label) pairs
+            embeddings (dataframe): The embeddings of each word indexed by the enitity
 
         Returns:
-            list: A list containing all combiantions of known entity-entity pair
-            list: A list containing all combiantions of new entity-entity pair
-            list: A list containing all combinations of every entity-entity pair
+            dataframe: Containing all combiantions of entity-entity pairs with embeddings and z labels
+            dataframe: Containing all combiantions of known entity-entity pair with embeddings
         """
 
-        # get entities that are known and new, then combine
-        known = list(zip(*nodes['K']))[0]
-        new = list(zip(*nodes['N']))[0]
-        combined = known + new
+        # parse entities from list
+        all_entities = list(zip(*ee_nodes))[0]
+        kg_entities = list(zip(*kg_nodes))[0]
 
-        # create combos
-        known = combinations(known, 2)
-        new = combinations(new, 2)
-        combined = combinations(combined, 2)
+        # create all combinations of entity-entity pairs
+        all_comb = combinations(all_entities, 2)
+        kg_comb = combinations(kg_entities, 2)
 
-        # for each pair get embeddings
-        known = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in known]    # dont know column name in dataframe corresponding to embedding yet
-        new = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in new]    # dont know column name in dataframe corresponding to embedding yet
-        combined = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in combined]  # dont know column name in dataframe corresponding to embedding yet
+        # pair the entity-entity pairs with their embeddings
+        all_comb = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in all_comb]    # dont know column name in dataframe corresponding to embedding yet
+        kg_comb = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in kg_comb]    # dont know column name in dataframe corresponding to embedding yet
 
-        # make all pairs of entities from each list and convert to dataframe
-        known = self.__embed_pairs(known)
-        new = self.__embed_pairs(new)
-        combined = self.__embed_pairs(combined)
+        # combine entity-entity pair embedings together
+        all_df = self.__embed_pairs(all_comb)
+        kg_df = self.__embed_pairs(kg_comb)
 
-        # add column for value of z
-        known.insert(1, 'z', 1)
-        new.insert(1, 'z', 0)
-        combined.insert(1, 'z', 0)
-        combined.loc[known.index, 'z'] = 1
+        # give proper "z" labels to entity-entity pairs that exist in KG
+        all_df.insert(1, 'z', 0)
+        intersection = all_df.Index.intersection(kg_df.Index)
+        all_df.loc[intersection, 'z'] = 1
 
-        return  known, new, combined
+        return  all_df, kg_df
+
+    # def __create_combinations(self, nodes, embeddings):
+    #     """
+    #     Private class method that takes all entities and creates every entity-entity pair present in KG
+
+    #     Args:
+    #         nodes (list): A list containing the entities as (word, label) pairs
+    #         embeddings (): The embeddings of each word
+
+    #     Returns:
+    #         list: A list containing all combiantions of known entity-entity pair
+    #         list: A list containing all combiantions of new entity-entity pair
+    #         list: A list containing all combinations of every entity-entity pair
+    #     """
+
+    #     # get entities that are known and new, then combine
+    #     known = list(zip(*nodes['K']))[0]
+    #     new = list(zip(*nodes['N']))[0]
+    #     combined = known + new
+
+    #     # create combos
+    #     known = combinations(known, 2)
+    #     new = combinations(new, 2)
+    #     combined = combinations(combined, 2)
+
+    #     # for each pair get embeddings
+    #     known = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in known]    # dont know column name in dataframe corresponding to embedding yet
+    #     new = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in new]    # dont know column name in dataframe corresponding to embedding yet
+    #     combined = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in combined]  # dont know column name in dataframe corresponding to embedding yet
+
+    #     # make all pairs of entities from each list and convert to dataframe
+    #     known = self.__embed_pairs(known)
+    #     new = self.__embed_pairs(new)
+    #     combined = self.__embed_pairs(combined)
+
+    #     # add column for value of z
+    #     known.insert(1, 'z', 1)
+    #     new.insert(1, 'z', 0)
+    #     combined.insert(1, 'z', 0)
+    #     combined.loc[known.index, 'z'] = 1
+
+    #     return  known, new, combined
 
     def __h(self, x, y):
         """
