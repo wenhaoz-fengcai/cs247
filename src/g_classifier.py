@@ -26,18 +26,19 @@ class G_Classifier():
         eps: The value of epsilon which is used by the second classifier
     """
 
-    def __init__(self, lst_news, architecture=(10,10,10), sample_size=0.25, minimum_sample=50):
+    def __init__(self, lst_news, architecture=(10,10,10), sample_size=0.25, minimum_sample=50, threshold=0.7):
 
         self.ee_graph = EE(lst_news)
         self.kg_graph = KG(lst_news)
         self.classifier = MLPClassifier(hidden_layer_sizes=architecture)
 
         self.embeddings = None #call function to get embeddings
-        self.all_df, self.kg_df = __create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.embeddings)
+        self.all_df, self.kg_df self.new_comb = __create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.ee_graph.nodes, self.embeddings)
         self.S_known = self.__random_sample(self.all_df, sample_size, minimum_sample)
         self.classifier = __train_classifier(self.classifier, self.all_df)
         self.eps = self.__generate_eps(self.S_known)
-        self.results = self.predict_emerging_probs(self.classifier, self.eps)
+        self.results_df = self.predict_emerging_probs(self.classifier, self.eps)
+        self.emerging_relations = self.filter_results(self.results_df, self.kg_df, self.new_comb, threshold)
 
     def __embed_pairs(self, pairs):
         """
@@ -55,7 +56,7 @@ class G_Classifier():
         embeddings.rename(index=str, columns={'0': 'embedding'})
         return embeddings
 
-    def __create_combinations(self, ee_nodes, kg_nodes, embeddings):
+    def __create_combinations(self, ee_nodes, kg_nodes, nodes, embeddings):
         """
         Private class method. Top level function that parses entities from graphs, pairs them with their embedings,
         calls __embed_pairs() to combine embedings, and gives proper 'z' labels to all e-e pairs.
@@ -63,20 +64,24 @@ class G_Classifier():
         Args:
             ee_nodes (list): A list containing all entities as (word, label) pairs
             kg_nodes (list): A list containing known entites as (word, label) pairs
+            nodes (dict): A dict of all all nodes in ee graph
             embeddings (dataframe): The embeddings of each word indexed by the enitity
 
         Returns:
             dataframe: Containing all combiantions of entity-entity pairs with embeddings and z labels
-            dataframe: Containing all combiantions of known entity-entity pair with embeddings
+            dataframe: Containing all combiantions of known entity-entity pairs with embeddings
+            list: Containing all combinations of new entity-entity pairs
         """
 
         # parse entities from list
         all_entities = list(zip(*ee_nodes))[0]
         kg_entities = list(zip(*kg_nodes))[0]
+        new_entities = list(zip(*nodes['N']))[0]
 
         # create all combinations of entity-entity pairs
         all_comb = combinations(all_entities, 2)
         kg_comb = combinations(kg_entities, 2)
+        new_comb = combinations(new_entities, 2)
 
         # pair the entity-entity pairs with their embeddings
         all_comb = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in all_comb]    # dont know column name in dataframe corresponding to embedding yet
@@ -91,7 +96,7 @@ class G_Classifier():
         intersection = all_df.Index.intersection(kg_df.Index)
         all_df.loc[intersection, 'z'] = 1
 
-        return  all_df, kg_df
+        return  all_df, kg_df, new_comb
 
     def __h(self, x, y):
         """
@@ -176,7 +181,19 @@ class G_Classifier():
 
         X = np.array(all_df.loc[:, 'embedding'])
         probs = classifier.predict_proba(X)
-        return probs / eps
+        probs = probs / eps
+        results_df = all_df.copy()
+        results_df.insert(2, 'probs', probs)
+        return results_df
+
+    def filter_results(self, results_df, kg_df, threshold):
+
+        # get entity-entity pairs that are not in KG
+        intersection = results_df.Index.intersection(kg_df.Index)
+        results_df = results_df.loc[intersection, :]
+
+
+
 
 
 
