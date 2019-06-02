@@ -36,8 +36,8 @@ class G_Classifier():
         self.all_df, self.kg_df = __create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.embeddings)
         self.S_known = self.__random_sample(self.all_df, sample_size, minimum_sample)
         self.classifier = __train_classifier(self.classifier, self.all_df)
-
         self.eps = self.__generate_eps(self.S_known)
+        self.results = self.predict_emerging_probs(self.classifier, self.eps)
 
     def __embed_pairs(self, pairs):
         """
@@ -92,48 +92,6 @@ class G_Classifier():
         all_df.loc[intersection, 'z'] = 1
 
         return  all_df, kg_df
-
-    # def __create_combinations(self, nodes, embeddings):
-    #     """
-    #     Private class method that takes all entities and creates every entity-entity pair present in KG
-
-    #     Args:
-    #         nodes (list): A list containing the entities as (word, label) pairs
-    #         embeddings (): The embeddings of each word
-
-    #     Returns:
-    #         list: A list containing all combiantions of known entity-entity pair
-    #         list: A list containing all combiantions of new entity-entity pair
-    #         list: A list containing all combinations of every entity-entity pair
-    #     """
-
-    #     # get entities that are known and new, then combine
-    #     known = list(zip(*nodes['K']))[0]
-    #     new = list(zip(*nodes['N']))[0]
-    #     combined = known + new
-
-    #     # create combos
-    #     known = combinations(known, 2)
-    #     new = combinations(new, 2)
-    #     combined = combinations(combined, 2)
-
-    #     # for each pair get embeddings
-    #     known = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in known]    # dont know column name in dataframe corresponding to embedding yet
-    #     new = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in new]    # dont know column name in dataframe corresponding to embedding yet
-    #     combined = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in combined]  # dont know column name in dataframe corresponding to embedding yet
-
-    #     # make all pairs of entities from each list and convert to dataframe
-    #     known = self.__embed_pairs(known)
-    #     new = self.__embed_pairs(new)
-    #     combined = self.__embed_pairs(combined)
-
-    #     # add column for value of z
-    #     known.insert(1, 'z', 1)
-    #     new.insert(1, 'z', 0)
-    #     combined.insert(1, 'z', 0)
-    #     combined.loc[known.index, 'z'] = 1
-
-    #     return  known, new, combined
 
     def __h(self, x, y):
         """
@@ -198,7 +156,7 @@ class G_Classifier():
             random_sample (Dataframe): The dataframe containing the random samples of entity-entity pairs that exist in KG
 
         Returns:
-            int: the value of epsilon
+            float: the value of epsilon
         """
 
         X = np.array(random_sample.loc[:, "embedding"])
@@ -206,6 +164,19 @@ class G_Classifier():
         probs = classifier.predict_proba(X)
 
         return (1. / size) * np.sum(probs)
+
+    def predict_emerging_probs(self, classifier, all_df, eps):
+        """
+        Predict the probability of each entity-entity pair being an emerging relation.
+
+        Args:
+            classifier (sklearn classifier): The trained classifier
+            eps (float): The value of epsilon
+        """
+
+        X = np.array(all_df.loc[:, 'embedding'])
+        probs = classifier.predict_proba(X)
+        return probs / eps
 
 
 
