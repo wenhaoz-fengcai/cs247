@@ -26,7 +26,7 @@ class G_Classifier():
         eps: The value of epsilon which is used by the second classifier
     """
 
-    def __init__(self, lst_news, architecture=(10,10,10)):
+    def __init__(self, lst_news, architecture=(10,10,10), sample_size=0.25, minimum_sample=50):
 
         self.ee_graph = EE(lst_news)
         self.kg_graph = KG(lst_news)
@@ -34,7 +34,7 @@ class G_Classifier():
 
         self.embeddings = None #call function to get embeddings
         self.all_df, self.kg_df = __create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.embeddings)
-        self.S_known = self.__random_sample(self.all_df, self.all_df.shape[0] * 0.25)
+        self.S_known = self.__random_sample(self.all_df, sample_size, minimum_sample)
         __train_classifier()
 
         self.eps = self.__generate_eps(self.S_known)
@@ -149,7 +149,7 @@ class G_Classifier():
 
         return 0.5 * np.add(x, y) # forumula from paper
 
-    def __random_sample(self, pairs, sample_size):
+    def __random_sample(self, all_df, sample_size, min_sample):
         """
         Obtain random sample of all entity pairs which are in the KG
 
@@ -161,10 +161,11 @@ class G_Classifier():
             Dataframe: The subset of entity-entity pairs from the random sample that are in the KG
         """
 
+        sample_size = all_df.shape[0] * sample_size
         size_known = 0
-        while size_known < 50:  # want a random sample of minimum size (min size is arbitrary)
-            S = pairs.sample(sample_size)
-            S_known = S.loc[self.known, :]
+        while size_known < min_sample:  # want a random sample of minimum size (min size is arbitrary)
+            S = all_df.sample(sample_size)
+            S_known = S.where(S['z'] == 1)
             size_known = S_known.shape[0]
 
         return S_known
