@@ -13,7 +13,7 @@ class TestEC(unittest.TestCase):
         assert set(edges) == {("Trump", "demands"),
                               ("Trump", "hazzaaaa")}
         df = self.ec.get_weights()
-        print(df)
+
         assert df.loc["Trump", "demands"] == 1
         assert df.loc["demands", "Trump"] == 1
         assert df.loc["Trump", "hazzaaaa"] == 1

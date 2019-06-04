@@ -104,7 +104,6 @@ class Graph(object):
             self.tokenized_text = word_tokenize(article)
             self.tokenized_text = self.reader.filter_stop_words(self.tokenized_text)
             generator = self.sliding_window(self.tokenized_text, self.window_size)
-
             for t in generator:
                 e = e.union(set(itertools.combinations(t, 2)))
         return set(e)
@@ -130,7 +129,7 @@ class Graph(object):
         """
         it = iter(seq)
         result = tuple(islice(it, n))
-        if len(result) == n:
+        if len(result) <= n:
             yield result
         for elem in it:
             result = result[1:] + (elem,)
