@@ -36,7 +36,7 @@ class TestGraph(unittest.TestCase):
                                 'farmers', 'ranchers', 'questioning', 'mental',
                                 'faculties', 'powerful', 'woman'])
 
-    def test_sliding_window(self):
+    def test_sliding_window1(self):
         a=[1,2,3,4,5,6,7]
         it = self.graph.sliding_window(a, 5)
         res = []
@@ -45,6 +45,14 @@ class TestGraph(unittest.TestCase):
         assert res == [(1, 2, 3, 4, 5),
                        (2, 3, 4, 5, 6),
                        (3, 4, 5, 6, 7)]
+
+    def test_sliding_window2(self):
+        a=[1,2,3,4,]
+        it = self.graph.sliding_window(a, 5)
+        res = []
+        for i in it:
+            res.append(i)
+        assert res == [(1, 2, 3, 4)]
 
     def test_get_edges(self):
         self.graph = Graph(["text graph edge node link window"])
