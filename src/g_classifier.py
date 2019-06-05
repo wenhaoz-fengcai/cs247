@@ -29,7 +29,7 @@ class G_Classifier():
         emerging_relations: The predict emerging relations after filtering results_df
     """
 
-    def __init__(self, lst_news, architecture=(10,10,10), sample_size=0.25, threshold=0.7):
+    def __init__(self, architecture=(10,10,10), sample_size=0.25, threshold=0.7):
         """
         Constructor
 
@@ -39,15 +39,15 @@ class G_Classifier():
             sample_size (float, optional): The fraction of total samples to randomly sample in order to estimate epsilon. Defaults to 0.25.
             threshold (float, optional): The probability threshold to be considered an emerging relation. Defaults to 0.7.
         """
-
-        self.ee_graph = EE(lst_news)
-        self.kg_graph = KG(lst_news)
+        self.embedder = Embedding()
+        self.ee_graph = self.embedder.ee_graph
+        self.kg_graph = self.embedder.kg_graph
         self.classifier = MLPClassifier(hidden_layer_sizes=architecture)
 
-        self.embeddings = Embedding().joint_embedding()[0]
-        self.all_df, self.kg_df self.new_comb = create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.ee_graph.nodes, self.embeddings)
+        self.embeddings = self.embedder.joint_embedding()[0]
+        self.all_df, self.kg_df, self.new_comb = self.create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.ee_graph.nodes, self.embeddings)
         self.S_known = self.random_sample(self.all_df, sample_size, minimum_sample)
-        self.classifier = train_classifier(self.classifier, self.all_df)
+        self.classifier = self.train_classifier(self.classifier, self.all_df)
         self.eps = self.generate_eps(self.S_known)
         self.results_df = self.predict_emerging_probs(self.classifier, self.eps)
         self.emerging_relations = self.filter_results(self.results_df, self.kg_df, self.new_comb, threshold)
@@ -68,7 +68,7 @@ class G_Classifier():
 
         # what is means of pair[0] and pair[i][j]? ----Hui
         #embeddings = {str(pair[0]), self.__h(pair[1][0], pair[1][0]) for pair in pairs}
-        embeddings = {str(pair[0]), self.h(pair[1][0], pair[1][1]) for pair in pairs}
+        embeddings = {(str(pair[0]), self.h(pair[1][0], pair[1][1])) for pair in pairs}
         embeddings = pd.from_dict(embeddings, orient='index')
         embeddings.rename(index=str, columns={'0': 'embedding'})
         # The return embedding is a dataframe with column are the pairs name and elements are x from the paper?
@@ -238,7 +238,4 @@ class G_Classifier():
 
 
 if __name__ == "__main__":
-    # root = os.getcwd()
-    # reader = Reader()
-    # reader.read_files(root + '/data/bbc/business/')
-    g = G(["Trump demands trade war with China Hazzaaaa"])
+    g = G_Classifier()
