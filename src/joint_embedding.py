@@ -15,6 +15,7 @@ from numpy.linalg import inv
 class Embedding(object):
         """
         Python class which produces the joint embedding of the words and entities.
+        To use it: E = Embedding(), entity_embedding, word_embedding = E.joint_embedding()
         Attributes:
         kg_graph: The knowledge Graph
         ee_graph: A heterogeneous subgraph of HEER, showing relations between entities
