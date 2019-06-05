@@ -8,6 +8,7 @@ from sklearn.neural_network import MLPClassifier
 from src.ee_graph import EE
 from src.kg_graph import KG
 from src.reader import Reader
+from src.joint_embedding import Embedding
 
 
 class G_Classifier():
@@ -43,7 +44,7 @@ class G_Classifier():
         self.kg_graph = KG(lst_news)
         self.classifier = MLPClassifier(hidden_layer_sizes=architecture)
 
-        self.embeddings = None #call function to get embeddings
+        self.embeddings = Embedding().joint_embedding()[0]
         self.all_df, self.kg_df self.new_comb = create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.ee_graph.nodes, self.embeddings)
         self.S_known = self.random_sample(self.all_df, sample_size, minimum_sample)
         self.classifier = train_classifier(self.classifier, self.all_df)
@@ -64,10 +65,10 @@ class G_Classifier():
         """
 
         # Alittle confuse here. So, here the pairs variable with structure [[pair_string,[emb1,emb2]],...,] right?
-        
+
         # what is means of pair[0] and pair[i][j]? ----Hui
         #embeddings = {str(pair[0]), self.__h(pair[1][0], pair[1][0]) for pair in pairs}
-        embeddings = {str(pair[0]), self.__h(pair[1][0], pair[1][1]) for pair in pairs}
+        embeddings = {str(pair[0]), self.h(pair[1][0], pair[1][1]) for pair in pairs}
         embeddings = pd.from_dict(embeddings, orient='index')
         embeddings.rename(index=str, columns={'0': 'embedding'})
         # The return embedding is a dataframe with column are the pairs name and elements are x from the paper?
@@ -105,8 +106,8 @@ class G_Classifier():
         kg_comb = [(pair, (embeddings.loc[pair[0], "0"], embeddings.loc[pair[1], "0"])) for pair in kg_comb]    # dont know column name in dataframe corresponding to embedding yet
 
         # combine entity-entity pair embedings together
-        all_df = self.__embed_pairs(all_comb)
-        kg_df = self.__embed_pairs(kg_comb)
+        all_df = self.embed_pairs(all_comb)
+        kg_df = self.embed_pairs(kg_comb)
 
         # give proper "z" labels to entity-entity pairs that exist in KG
         all_df.insert(1, 'z', 0)
