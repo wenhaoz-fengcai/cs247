@@ -22,9 +22,9 @@ class Embedding(object):
         cc_graph: A heterogeneous subgraph of HEER, showing relations between words
         ec_graph: A bipartite subgraph of HEER, showing relations between entities and words
         """
-        def __init__(self, d=10):
+        def __init__(self):
 
-          self.read = Reader()
+        self.read = Reader()
 #           self.news_list = ["Today's policy is about global warming", "Donald Trupm is the president of United States", "UCLA is the best school in southern California", "Noor Nakhaei is going to be student at UCLA", "the Boelter Hall is a dungeon", "UCLA is colaborating with Stanford", "Wenhao is meeting Trump", "Trump is in United Kingdom"]
           self.news_list = self.read.read_csv_file("./data/mixed-news/articles-title_only.csv")
           self.graph = Graph(self.news_list)
@@ -35,8 +35,9 @@ class Embedding(object):
           self.cc_graph = CC(self.news_list)
           print("cc", self.cc_graph.get_edges())
           self.kg_graph = KG(self.news_list)
-          self.S = pd.DataFrame(1, index=self.entities, columns=range(0, d))
-          self.T = pd.DataFrame(1, index=self.words, columns=range(0, d))
+          self.d = 10 #THIS SHOULD BE CHANGED! 4, 10, 18  
+          self.S = pd.DataFrame(1, index=self.entities, columns=range(0, self.d))
+          self.T = pd.DataFrame(1, index=self.words, columns=range(0, self.d))
           for i in self.S.columns:
             for j in self.S.index:
               self.S[i][j] = randint(0, 10)
@@ -188,7 +189,7 @@ class Embedding(object):
 
           """
           # the guiding parameter, which we should have empirically, the bigger it is, the more we are relying to our kg graph.
-          theta = 0.5
+          theta = 0.5 #THIS SHOULD BE CHANGED! 0.2, 0.5, 0.7
           # number of negative samplings
           k = 2
           # number of iterations
