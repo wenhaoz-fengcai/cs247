@@ -70,7 +70,7 @@ class Reader(object):
 
         return list(self.files)
 
-    def read_csv_file(self, filepath):
+    def read_csv_file(self, filepath, titleOnly=True):
         '''
         (Mixed-news data are stored in csv format. For convinience, we only remain title information and they are already informative.)
 
@@ -83,8 +83,10 @@ class Reader(object):
             A copy of list of news content
         '''
         article = pd.read_csv(filepath)
-
-        self.files = list(set(article.iloc[:,1].tolist()))
+        article = article.iloc[:,1]
+        if titleOnly:
+            article = article.apply(lambda x: x.split(".")[0])
+        self.files = list(set(article.iloc[:,0].tolist()))
 
         return self.files
 

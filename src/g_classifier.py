@@ -68,14 +68,10 @@ class G_Classifier():
             Dataframe: A df containing the embeddings of the entity-entity pairs as values and indexed by e-e pair
         """
 
-        # Alittle confuse here. So, here the pairs variable with structure [[pair_string,[emb1,emb2]],...,] right?
-        
-        # what is means of pair[0] and pair[i][j]? ----Hui
-        #embeddings = {str(pair[0]), self.__h(pair[1][0], pair[1][0]) for pair in pairs}
         embeddings = {str(pair[0]), self.__h(pair[1][0], pair[1][1]) for pair in pairs}
         embeddings = pd.from_dict(embeddings, orient='index')
         embeddings.rename(index=str, columns={'0': 'embedding'})
-        # The return embedding is a dataframe with column are the pairs name and elements are x from the paper?
+
         return embeddings
 
     def create_combinations(self, ee_nodes, kg_nodes, nodes, embeddings):
