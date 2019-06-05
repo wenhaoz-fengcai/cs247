@@ -4,6 +4,7 @@ from itertools import combinations
 import numpy as np
 import pandas as pd
 from sklearn.neural_network import MLPClassifier
+from sklearn.svm import LinearSVC 
 
 from src.ee_graph import EE
 from src.kg_graph import KG
@@ -28,7 +29,7 @@ class G_Classifier():
         emerging_relations: The predict emerging relations after filtering results_df
     """
 
-    def __init__(self, lst_news, architecture=(10,10,10), sample_size=0.25, threshold=0.7):
+    def __init__(self, lst_news, architecture=(10,10,10), sample_size=0.25, threshold=0.7, cls=0):
         """
         Constructor
 
@@ -37,11 +38,15 @@ class G_Classifier():
             architecture (tuple, optional): The architecture of the hidden layers in the classifier. Defaults to (10,10,10).
             sample_size (float, optional): The fraction of total samples to randomly sample in order to estimate epsilon. Defaults to 0.25.
             threshold (float, optional): The probability threshold to be considered an emerging relation. Defaults to 0.7.
+            cls(int,optional): the classifier to use 0 for MLP 1 for svm. Default 0(MLP). 
         """
 
         self.ee_graph = EE(lst_news)
         self.kg_graph = KG(lst_news)
-        self.classifier = MLPClassifier(hidden_layer_sizes=architecture)
+        if cls == 0:
+        	self.classifier = MLPClassifier(hidden_layer_sizes=architecture)
+        elif cls == 1:
+        	self.classifier = LinearSVC(penalty="l1")
 
         self.embeddings = None #call function to get embeddings
         self.all_df, self.kg_df self.new_comb = create_combinations(self.ee_graph.get_nodes, self.kg_graph.get_nodes, self.ee_graph.nodes, self.embeddings)

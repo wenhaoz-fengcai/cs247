@@ -9,3 +9,4 @@ scipy==1.2.1
 six==1.12.0
 sklearn==0.0
 SPARQLWrapper==1.8.4 
+itertools==2.3
