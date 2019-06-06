@@ -39,6 +39,7 @@ class G_Classifier():
             architecture (tuple, optional): The architecture of the hidden layers in the classifier. Defaults to (10,10,10).
             sample_size (float, optional): The fraction of total samples to randomly sample in order to estimate epsilon. Defaults to 0.25.
             threshold (float, optional): The probability threshold to be considered an emerging relation. Defaults to 0.7.
+            cls(int,optional): the classifier to use 0 for MLP 1 for svm. Default 0(MLP).
         """
         # self.embedder = Embedding()
         # self.ee_graph = self.embedder.ee_graph
