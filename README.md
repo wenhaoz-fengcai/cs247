@@ -8,6 +8,10 @@
 
 Proposal is [here](https://github.com/jiaowoshabi/cs247/blob/master/docs/submission_17474255.pdf)
 
+### Project Report
+
+The final report of the presentation is [here](https://github.com/jiaowoshabi/cs247/blob/master/docs/Project_Report_CS247.pdf)
+
 ### Project Presentation
 
 The slides of the presentation is [here](https://prezi.com/p/_ne88zzwwx6v/cs247-presentaion)
